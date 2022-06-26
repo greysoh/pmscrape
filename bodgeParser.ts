@@ -46,8 +46,6 @@ export default class BodgeParser {
   }
 
   async mediaFireParser(url: string): Promise<string> {
-    // Placeholder.
-
     const data = await get(url, {
         headers: {
             "User-Agent": this.useragent,
@@ -56,13 +54,27 @@ export default class BodgeParser {
 
     const dom: any = new DOMParser().parseFromString(data.data, "text/html");
     const elem: any = dom.getElementById("downloadButton");
-    const urlFinal: string = elem.attributes.href;
 
-    return urlFinal;
+    try {
+      const urlFinal: string = elem.attributes.href;
+
+      return urlFinal;
+    } catch (e) {
+      console.error("Download key error!");
+      return "";
+    }
   }
 
   async mediaFireParserFolder(url: string): Promise<string> {
-    // Placeholder.
-    return "";
+    let newUrl: any = url.split("/");
+    newUrl = newUrl[newUrl.length - 2];
+
+    const data = await get(`https://www.mediafire.com/api/1.4/folder/get_content.php?r=ltyk&content_type=files&filter=all&order_by=name&order_direction=asc&chunk=1&version=1.5&folder_key=${newUrl}&response_format=json`, {
+        headers: {
+            "User-Agent": this.useragent,
+        },
+    });
+
+    return await this.mediaFireParser(data.data.response.folder_content.files[0].links.normal_download);
   }
 }
