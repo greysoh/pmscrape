@@ -114,9 +114,10 @@ for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) {
     // And people use mediafire and mega.nz. 
     // Why??
     // There is *NO* point,
-    // and it's less of a hassle to just link to the planetminecraft page.
+    // and it's less of a hassle to just use direct download.
     // *sigh* 
     //
+    // Anyways, bodgeParser.ts should solve this.
 
     // Anyways, we get the direct download URL,
 
@@ -160,6 +161,8 @@ for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) {
     );
 
     const url: string = parsedURL.data.forward_url;
+
+    console.log(`Found parsed texture pack URL for '${type}' at '${url}'`);
 
     console.warn("DEPRECATED: This texture pack is not a direct download.");
     console.warn("Saving incompatible notice in the out directory, with the link.");
