@@ -1,7 +1,8 @@
 import get from "https://deno.land/x/axiod/mod.ts";
+import { ConsoleLogger } from "https://deno.land/x/unilogger@v1.0.3/mod.ts";
 import { lookup, getLookupSource } from "./lookupTbl.ts";
 import { download } from "./download.ts";
-import { ConsoleLogger } from "https://deno.land/x/unilogger@v1.0.3/mod.ts";
+import BodgeParser from "./bodgeParser.ts";
 
 import {
   DOMParser,
@@ -192,10 +193,24 @@ for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) {
 
     log.info(`Found parsed texture pack URL for '${type}' at '${url}'`);
 
-    log.error("This texture pack is not a direct download.");
-    log.error("Saving incompatible notice in the out directory, with the link.");
+    log.debug(`Loading bodge parser...`);
+    const bodgeParser: any = new BodgeParser(useragent);
 
-    await Deno.writeTextFile("out/" + data.innerText.replace(/[^a-z0-9]/gi, '_') + "_INCOMPATIBLE.txt", "URL: " + url);
+    const newNewURL = await bodgeParser.parse(url);
+
+    if (newNewURL == "") {
+        log.error("This texture pack is not a supported indirect download.");
+        log.error("Saving incompatible notice in the out directory, with the link.");
+
+        await Deno.writeTextFile("out/" + data.innerText.replace(/[^a-z0-9]/gi, '_') + "_INCOMPATIBLE.txt", "URL: " + url);
+        continue;
+    }
+
+    log.info(`Downloading...`);
+    await download(
+        newNewURL,
+        "out/" + data.innerText.replace(/[^a-z0-9]/gi, '_') + ".zip"
+      );
   }
 }
 
