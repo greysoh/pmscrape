@@ -1,11 +1,19 @@
 import get from "https://deno.land/x/axiod/mod.ts";
 import { lookup, getLookupSource } from "./lookupTbl.ts";
 import { download } from "./download.ts";
+import { ConsoleLogger } from "https://deno.land/x/unilogger@v1.0.3/mod.ts";
 
 import {
   DOMParser,
   Element,
 } from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
+
+const log = new ConsoleLogger({
+    tag_string: "{name} |",
+    tag_string_fns: {
+      name: () => "Init",
+    },
+  });
 
 const type: string = Deno.args[0] || "All"; // Get the type of texture pack to search for
 const page: number = parseInt(Deno.args[1]) || 1; // Get the page number to search for
@@ -44,18 +52,18 @@ if (type == "listversions") { // Else, if the type is "listversions",
 }
 
 console.log(`To get help, run: pmd help`); // We then show the help message,
-console.log(`Creating folder...`); // and we create the folder.
+log.info(`Creating folder...`); // and we create the folder.
 
 try {
   Deno.mkdirSync("out"); // Then, we try to make the folder.
 } catch (err) {}
 
-console.log(`Looking up '${type}'...`);
+log.info(`Looking up '${type}'...`);
 
 const url: string = lookup(type); // We get the URL to search for,
 
-console.log(`Found texture pack type for '${type}' at '${url + "&p=" + page}'`); // show the URL,
-console.log(`Getting list of options...`); // and we get the list of options.
+log.info(`Found texture pack type for '${type}' at '${url + "&p=" + page}'`); // show the URL,
+log.info(`Getting list of options...`); // and we get the list of options.
 
 const htmlJSON: any = await get(url + "&p=" + page, { // We get the HTML,
   headers: { // with the headers,
@@ -63,24 +71,30 @@ const htmlJSON: any = await get(url + "&p=" + page, { // We get the HTML,
   },
 });
 
-console.log(`Parsing data...`); // and we parse the data.
+log.info(`Parsing data...`); // and we parse the data.
 
 const dom: any = new DOMParser().parseFromString(htmlJSON.data, "text/html"); // We parse the HTML,
 
-console.log(`Finding pages...`); // and we find the pages.
+log.info(`Finding pages...`); // and we find the pages.
 
 for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) { // We loop through the pages,
+    const log = new ConsoleLogger({
+        tag_string: "{name} |",
+        tag_string_fns: {
+          name: () => "InitialParser",
+        },
+      }); // initialize the logger,
   const element: any = dom.getElementsByClassName("resource r-data")[i]; // and we get the element.
   const data: any = element.getElementsByClassName("r-title")[0]; // We get the data,
 
   const href: string = data.attributes.href; // href,
 
-  console.log(`Found page '${data.innerText}' at '${href}'`); // show the page,
-  console.log(`Waiting 1 second to not reach the rate limit...`); // and we wait 1 second.
+  log.info(`Found page '${data.innerText}' at '${href}'`); // show the page,
+  log.info(`Waiting 1 second to not reach the rate limit...`); // and we wait 1 second.
 
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  console.log(`Getting page '${data.innerText}'...`); // Then we get the page for that page,
+  log.info(`Getting page '${data.innerText}'...`); // Then we get the page for that page,
 
   const newHtmlJSON: any = await get("https://www.planetminecraft.com" + href, { // with the headers,
     headers: {
@@ -88,7 +102,7 @@ for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) {
     },
   });
 
-  console.log(`Parsing data...`); // and we parse the data.
+  log.info(`Parsing data...`); // and we parse the data.
 
   const newDOM: any = new DOMParser().parseFromString( // We parse the HTML,
     newHtmlJSON.data,
@@ -98,7 +112,7 @@ for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) {
   const newURL: string = // We get the URL,
     newDOM.getElementsByClassName("branded-download")[0].attributes.href;
 
-  console.log(`Found unparsed texture pack URL for '${type}' at '${newURL}'`); // show the URL,
+  log.info(`Found unparsed texture pack URL for '${type}' at '${newURL}'`); // show the URL,
 
   if (newURL.includes("/file/")) { // and if the URL contains "/file/", it is a direct download,
     // "Rant" here:
@@ -121,6 +135,13 @@ for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) {
 
     // Anyways, we get the direct download URL,
 
+    const log = new ConsoleLogger({
+        tag_string: "{name} |",
+        tag_string_fns: {
+          name: () => "DirectDownloadParser",
+        },
+      });
+
     const parsedURL: any = await get(
       "https://www.planetminecraft.com" + newURL,
       {
@@ -138,19 +159,26 @@ for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) {
     const newNewURL: string = // then get the actual url.
       garbagio.getElementById("prerollDownload").attributes.href;
 
-    console.log( // then, we download the file.
+    log.info( // then, we download the file.
       `Found parsed texture pack URL for '${type}' at '${newNewURL}'`
     );
     
-    console.log(`Downloading...`);
+    log.info(`Downloading...`);
 
     await download(
       newNewURL,
       "out/" + newNewURL.split("/")[newNewURL.split("/").length - 1]
     );
 
-    console.log(`Downloaded.`);
+    log.info(`Downloaded.`);
   } else {
+    const log = new ConsoleLogger({
+        tag_string: "{name} |",
+        tag_string_fns: {
+          name: () => "CustomPathParser",
+        },
+      });
+
     const parsedURL: any = await get(
       "https://www.planetminecraft.com" + newURL,
       {
@@ -162,13 +190,13 @@ for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) {
 
     const url: string = parsedURL.data.forward_url;
 
-    console.log(`Found parsed texture pack URL for '${type}' at '${url}'`);
+    log.info(`Found parsed texture pack URL for '${type}' at '${url}'`);
 
-    console.warn("DEPRECATED: This texture pack is not a direct download.");
-    console.warn("Saving incompatible notice in the out directory, with the link.");
+    log.error("This texture pack is not a direct download.");
+    log.error("Saving incompatible notice in the out directory, with the link.");
 
     await Deno.writeTextFile("out/" + data.innerText.replace(/[^a-z0-9]/gi, '_') + "_INCOMPATIBLE.txt", "URL: " + url);
   }
 }
 
-console.log("Done.");
+log.info("Done.");
