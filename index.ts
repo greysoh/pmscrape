@@ -7,46 +7,50 @@ import BodgeParser from "./bodgeParser.ts";
 import { DOMParser } from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
 
 const log = new ConsoleLogger({
-    tag_string: "{name} |",
-    tag_string_fns: {
-      name: () => "Init",
-    },
-  });
+  tag_string: "{name} |",
+  tag_string_fns: {
+    name: () => "Init",
+  },
+});
 
 const type: string = Deno.args[0] || "All"; // Get the type of texture pack to search for
 const page: number = parseInt(Deno.args[1]) || 1; // Get the page number to search for
-const useragent: string = 
+const useragent: string =
   Deno.args[2] ||
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:101.0) Gecko/20100101 Firefox/101.0"; // Get the user agent to use
 
-if (type == "help") { // If the type is help,
-    console.log( // we show the help message,
-        "Usage: pmscrape [type: optional] [page: optional] [useragent: optional]\n" +
-        "You can also use the following debug options:\n" +
-        " - type = listversions: list all versions available\n\n" +
-        "Example: pmscrape All 1\n" +
-        "Example: pmscrape 1.16.1\n" +
-        "Example: pmscrape 1.16.1 1\n" +
-        "Example: pmscrape 1.16.1 1 \"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:101.0) Gecko/20100101 Firefox/101.0\"\n\n" +
-        "Types:\n" +
-        " - optional: you probably should use, version number (default: All)\n" +
-        " - page: page number (default: 1)\n" + 
-        " - useragent: useragent to use (default: Firefox v101.0)\n" + 
-        "   - Full useragent in use:\n" + 
-        "     - " + useragent
-    );
+if (type == "help") {
+  // If the type is help,
+  console.log(
+    // we show the help message,
+    "Usage: pmscrape [type: optional] [page: optional] [useragent: optional]\n" +
+      "You can also use the following debug options:\n" +
+      " - type = listversions: list all versions available\n\n" +
+      "Example: pmscrape All 1\n" +
+      "Example: pmscrape 1.16.1\n" +
+      "Example: pmscrape 1.16.1 1\n" +
+      'Example: pmscrape 1.16.1 1 "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:101.0) Gecko/20100101 Firefox/101.0"\n\n' +
+      "Types:\n" +
+      " - optional: you probably should use, version number (default: All)\n" +
+      " - page: page number (default: 1)\n" +
+      " - useragent: useragent to use (default: Firefox v101.0)\n" +
+      "   - Full useragent in use:\n" +
+      "     - " +
+      useragent
+  );
 
-    Deno.exit(0); // then exit.
+  Deno.exit(0); // then exit.
 }
 
-if (type == "listversions") { // Else, if the type is "listversions",
-    const lookup: string[] = getLookupSource(); // we get the list of versions available,
+if (type == "listversions") {
+  // Else, if the type is "listversions",
+  const lookup: string[] = getLookupSource(); // we get the list of versions available,
 
-    for (let i = 0; i < lookup.length; i++) {
-        console.log("- " + lookup[i]); // list them,
-    }
-    
-    Deno.exit(0); // and exit.
+  for (let i = 0; i < lookup.length; i++) {
+    console.log("- " + lookup[i]); // list them,
+  }
+
+  Deno.exit(0); // and exit.
 }
 
 console.log(`To get help, run: pmscrape help`); // We then show the help message,
@@ -63,8 +67,10 @@ const url: string = lookup(type); // We get the URL to search for,
 log.info(`Found texture pack type for '${type}' at '${url + "&p=" + page}'`); // show the URL,
 log.info(`Getting list of texture packs...`); // and we get the list of options.
 
-const htmlJSON: any = await get(url + "&p=" + page, { // We get the HTML,
-  headers: { // with the headers,
+const htmlJSON: any = await get(url + "&p=" + page, {
+  // We get the HTML,
+  headers: {
+    // with the headers,
     "User-Agent": useragent,
   },
 });
@@ -75,13 +81,14 @@ const dom: any = new DOMParser().parseFromString(htmlJSON.data, "text/html"); //
 
 log.info(`Finding pages...`); // and we find the pages.
 
-for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) { // We loop through the pages,
-    const log = new ConsoleLogger({
-        tag_string: "{name} |",
-        tag_string_fns: {
-          name: () => "InitialParser",
-        },
-      }); // initialize the logger,
+for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) {
+  // We loop through the pages,
+  const log = new ConsoleLogger({
+    tag_string: "{name} |",
+    tag_string_fns: {
+      name: () => "InitialParser",
+    },
+  }); // initialize the logger,
   const element: any = dom.getElementsByClassName("resource r-data")[i]; // and we get the element.
   const data: any = element.getElementsByClassName("r-title")[0]; // We get the data,
 
@@ -94,7 +101,8 @@ for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) {
 
   log.info(`Getting page '${data.innerText}'...`); // Then we get the page for that page,
 
-  const newHtmlJSON: any = await get("https://www.planetminecraft.com" + href, { // with the headers,
+  const newHtmlJSON: any = await get("https://www.planetminecraft.com" + href, {
+    // with the headers,
     headers: {
       "User-Agent": useragent,
     },
@@ -102,7 +110,8 @@ for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) {
 
   log.info(`Parsing data...`); // and we parse the data.
 
-  const newDOM: any = new DOMParser().parseFromString( // We parse the HTML,
+  const newDOM: any = new DOMParser().parseFromString(
+    // We parse the HTML,
     newHtmlJSON.data,
     "text/html"
   );
@@ -112,7 +121,8 @@ for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) {
 
   log.info(`Found unparsed texture pack URL for '${type}' at '${newURL}'`); // show the URL,
 
-  if (newURL.includes("/file/")) { // and if the URL contains "/file/", it is a direct download,
+  if (newURL.includes("/file/")) {
+    // and if the URL contains "/file/", it is a direct download,
     // "Rant" here:
     // And even though it sucks to parse this,
     // It ACTUALLY WORKS.
@@ -123,27 +133,28 @@ for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) {
     // And, money hungry people use ad urls to get money,
     // despite ad blockers existing.
     //
-    // And people use mediafire and mega.nz. 
+    // And people use mediafire and mega.nz.
     // Why??
     // There is *NO* point,
     // and it's less of a hassle to just use direct download.
-    // *sigh* 
+    // *sigh*
     //
     // Anyways, bodgeParser.ts should solve this.
 
     // Anyways, we get the direct download URL,
 
     const log = new ConsoleLogger({
-        tag_string: "{name} |",
-        tag_string_fns: {
-          name: () => "DirectDownloadParser",
-        },
-      });
+      tag_string: "{name} |",
+      tag_string_fns: {
+        name: () => "DirectDownloadParser",
+      },
+    });
 
     const parsedURL: any = await get(
       "https://www.planetminecraft.com" + newURL,
       {
-        headers: { // with the headers,
+        headers: {
+          // with the headers,
           "User-Agent": useragent,
         },
       }
@@ -157,10 +168,11 @@ for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) {
     const newNewURL: string = // then get the actual url.
       garbagio.getElementById("prerollDownload").attributes.href;
 
-    log.info( // then, we download the file.
+    log.info(
+      // then, we download the file.
       `Found parsed texture pack URL for '${type}' at '${newNewURL}'`
     );
-    
+
     log.info(`Downloading...`);
 
     await download(
@@ -171,11 +183,11 @@ for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) {
     log.info(`Downloaded.`);
   } else {
     const log = new ConsoleLogger({
-        tag_string: "{name} |",
-        tag_string_fns: {
-          name: () => "CustomPathParser",
-        },
-      });
+      tag_string: "{name} |",
+      tag_string_fns: {
+        name: () => "CustomPathParser",
+      },
+    });
 
     const parsedURL: any = await get(
       "https://www.planetminecraft.com" + newURL,
@@ -196,18 +208,25 @@ for (var i = 0; i < dom.getElementsByClassName("resource r-data").length; i++) {
     const newNewURL = await bodgeParser.parse(url);
 
     if (newNewURL == "") {
-        log.error("This texture pack is not a supported indirect download.");
-        log.error("Saving incompatible notice in the out directory, with the link.");
+      log.error("This texture pack is not a supported indirect download.");
+      log.error(
+        "Saving incompatible notice in the out directory, with the link."
+      );
 
-        await Deno.writeTextFile("out/" + data.innerText.replace(/[^a-z0-9]/gi, '_') + "_INCOMPATIBLE.txt", "URL: " + url);
-        continue;
+      await Deno.writeTextFile(
+        "out/" +
+          data.innerText.replace(/[^a-z0-9]/gi, "_") +
+          "_INCOMPATIBLE.txt",
+        "URL: " + url
+      );
+      continue;
     }
 
     log.info(`Downloading...`);
     await download(
-        newNewURL,
-        "out/" + data.innerText.replace(/[^a-z0-9]/gi, '_') + ".zip"
-      );
+      newNewURL,
+      "out/" + data.innerText.replace(/[^a-z0-9]/gi, "_") + ".zip"
+    );
   }
 }
 
