@@ -24,13 +24,13 @@ const useragent: string =
 
 if (type == "help") { // If the type is help,
     console.log( // we show the help message,
-        "Usage: pmd [type: optional] [page: optional] [useragent: optional]\n" +
+        "Usage: pmscrape [type: optional] [page: optional] [useragent: optional]\n" +
         "You can also use the following debug options:\n" +
         " - type = listversions: list all versions available\n\n" +
-        "Example: pmd All 1\n" +
-        "Example: pmd 1.16.1\n" +
-        "Example: pmd 1.16.1 1\n" +
-        "Example: pmd 1.16.1 1 \"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:101.0) Gecko/20100101 Firefox/101.0\"\n\n" +
+        "Example: pmscrape All 1\n" +
+        "Example: pmscrape 1.16.1\n" +
+        "Example: pmscrape 1.16.1 1\n" +
+        "Example: pmscrape 1.16.1 1 \"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:101.0) Gecko/20100101 Firefox/101.0\"\n\n" +
         "Types:\n" +
         " - optional: you probably should use, version number (default: All)\n" +
         " - page: page number (default: 1)\n" + 
@@ -52,7 +52,7 @@ if (type == "listversions") { // Else, if the type is "listversions",
     Deno.exit(0); // and exit.
 }
 
-console.log(`To get help, run: pmd help`); // We then show the help message,
+console.log(`To get help, run: pmscrape help`); // We then show the help message,
 log.info(`Creating folder...`); // and we create the folder.
 
 try {
@@ -64,7 +64,7 @@ log.info(`Looking up '${type}'...`);
 const url: string = lookup(type); // We get the URL to search for,
 
 log.info(`Found texture pack type for '${type}' at '${url + "&p=" + page}'`); // show the URL,
-log.info(`Getting list of options...`); // and we get the list of options.
+log.info(`Getting list of texture packs...`); // and we get the list of options.
 
 const htmlJSON: any = await get(url + "&p=" + page, { // We get the HTML,
   headers: { // with the headers,

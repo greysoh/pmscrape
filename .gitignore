@@ -1,4 +1,8 @@
 .vscode
 out
+pmscrape
+pmscrape.exe
+
+# Legacy
 pmd
 pmd.exe
