@@ -19,6 +19,7 @@ for (
     .innerHTML.split("<")[0]
     .replaceAll("Minecraft ", "")
     .split("");
+
   name.pop();
   name = name.join("");
 
@@ -27,8 +28,14 @@ for (
     .getElementsByTagName("li")
     [i].getElementsByTagName("a")[0].href;
 
-  lookupSource.push(name);
   lookupDest.push(value);
+  
+  if (name == "All Game Version") {
+    lookupSource.push("All");
+    continue;
+  }
+
+  lookupSource.push(name);
 }
 
 console.log(lookupSource);
