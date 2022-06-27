@@ -75,6 +75,11 @@ export default class BodgeParser {
         },
     });
 
-    return await this.mediaFireParser(data.data.response.folder_content.files[0].links.normal_download);
+    try {
+      return await this.mediaFireParser(data.data.response.folder_content.files[0].links.normal_download);
+    } catch (e) {
+      console.error("Download key error!");
+      return "";
+    }
   }
 }
