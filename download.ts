@@ -10,9 +10,10 @@ export async function exists(source: string): Promise<boolean> {
 export async function download(
   source: string,
   destination: string
-): Promise<void> {
+): Promise<boolean> {
   if (await exists(destination)) {
-    Deno.removeSync(destination);
+    console.log("Already downloaded!");
+    return true;
   }
 
   // We use browser fetch API
@@ -30,4 +31,6 @@ export async function download(
 
   // We can finally close the file
   Deno.close(file.rid);
+
+  return true;
 }
