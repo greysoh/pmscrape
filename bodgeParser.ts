@@ -5,14 +5,11 @@
 //  - YouTube/Video Streams
 // Supported:
 //  - Direct Downloads (obviously)
-// Planned:
 //  - Mediafire
+// Planned:
 //  - Google Drive
 
-import {
-  DOMParser,
-  Element,
-} from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
+import { DOMParser } from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
 
 import get from "https://deno.land/x/axiod/mod.ts";
 

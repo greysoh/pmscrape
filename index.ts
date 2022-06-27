@@ -4,10 +4,7 @@ import { lookup, getLookupSource } from "./lookupTbl.ts";
 import { download } from "./download.ts";
 import BodgeParser from "./bodgeParser.ts";
 
-import {
-  DOMParser,
-  Element,
-} from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
+import { DOMParser } from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
 
 const log = new ConsoleLogger({
     tag_string: "{name} |",
