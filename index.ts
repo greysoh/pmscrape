@@ -13,11 +13,11 @@ const log = new ConsoleLogger({
   },
 });
 
-const type: string = Deno.args[0] || "All"; // Get the type of texture pack to search for
-const page: number = parseInt(Deno.args[1]) || 1; // Get the page number to search for
+const type: string = Deno.args[0] || "All"; // First, we get the type of texture pack to search for,
+const page: number = parseInt(Deno.args[1]) || 1; // the page number to search for,
 const useragent: string =
   Deno.args[2] ||
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:101.0) Gecko/20100101 Firefox/101.0"; // Get the user agent to use
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:101.0) Gecko/20100101 Firefox/101.0"; // and the user agent to use.
 
 if (type == "help") {
   // If the type is help,
